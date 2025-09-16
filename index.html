@@ -1,257 +1,258 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Geo-tag Photo with what3words</title>
-   <script src="https://cdn.tailwindcss.com"></script>
-   <link rel="preconnect" href="https://fonts.googleapis.com">
-   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-   <style>
-       body {
-           font-family: 'Inter', sans-serif;
-       }
-       video {
-           width: 100%;
-           height: auto;
-           border-radius: 0.75rem;
-       }
-       @keyframes pulse-dot {
-           0%, 100% { opacity: 1; }
-           50% { opacity: 0.5; }
-       }
-       .pulse-dot {
-           animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-       }
-   </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo-tag Photo with what3words</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            border-radius: 0.75rem;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse-dot {
+            animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
 </head>
 <body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen p-4">
 
-   <div class="w-full max-w-lg mx-auto bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
-       <div class="p-6">
-           <header class="text-center mb-6">
-               <h1 class="text-2xl font-bold text-white">Geo-tag Photo</h1>
-               <p class="text-gray-400 text-sm">Capture a photo to get its what3words location.</p>
-           </header>
-           
-           <main>
-               <div id="initialState" class="text-center">
-                   <button id="takePhotoButton" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 flex items-center justify-center mx-auto">
-                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
-                       Start Camera
-                   </button>
-               </div>
+    <div class="w-full max-w-lg mx-auto bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+        <div class="p-6">
+            <header class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-white">Geo-tag Photo</h1>
+                <p class="text-gray-400 text-sm">Capture a photo to get its what3words location.</p>
+            </header>
+            
+            <main>
+                <div id="initialState" class="text-center">
+                    <button id="takePhotoButton" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 flex items-center justify-center mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                        Start Camera
+                    </button>
+                </div>
 
-               <div id="cameraState" class="hidden">
-                   <div class="bg-black rounded-xl overflow-hidden shadow-lg mb-4 relative">
-                       <video id="video" autoplay playsinline></video>
-                       <div id="cameraSpinner" class="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
-                           <svg class="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                           </svg>
-                       </div>
-                   </div>
-                    <canvas id="canvas" class="hidden"></canvas>
-                   <button id="captureButton" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500/50 flex items-center justify-center">
-                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="12" cy="12" r="10"></circle></svg>
-                       Capture Photo
-                   </button>
-               </div>
+                <div id="cameraState" class="hidden">
+                    <div class="bg-black rounded-xl overflow-hidden shadow-lg mb-4 relative">
+                        <video id="video" autoplay playsinline></video>
+                        <div id="cameraSpinner" class="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
+                            <svg class="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                     <canvas id="canvas" class="hidden"></canvas>
+                    <button id="captureButton" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500/50 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="12" cy="12" r="10"></circle></svg>
+                        Capture Photo
+                    </button>
+                </div>
 
-               <div id="resultState" class="hidden space-y-4">
-                   <img id="photo" src="" alt="Captured photo" class="rounded-xl shadow-lg w-full">
-                   
-                   <div id="status" class="flex items-center justify-center space-x-2 bg-gray-700/50 p-3 rounded-lg">
-                       <div class="h-2.5 w-2.5 bg-yellow-400 rounded-full pulse-dot"></div>
-                       <span id="statusText" class="text-sm font-medium text-yellow-300">Getting location...</span>
-                   </div>
+                <div id="resultState" class="hidden space-y-4">
+                    <img id="photo" src="" alt="Captured photo" class="rounded-xl shadow-lg w-full">
+                    
+                    <div id="status" class="flex items-center justify-center space-x-2 bg-gray-700/50 p-3 rounded-lg">
+                        <div class="h-2.5 w-2.5 bg-yellow-400 rounded-full pulse-dot"></div>
+                        <span id="statusText" class="text-sm font-medium text-yellow-300">Getting location...</span>
+                    </div>
 
-                   <div id="locationInfo" class="hidden bg-gray-700/50 p-4 rounded-lg">
-                       <h3 class="text-lg font-semibold text-white mb-2">Location Details</h3>
-                       <div class="space-y-2 text-sm">
-                           <p>
-                               <strong class="text-indigo-400">what3words:</strong>
-                               <span id="w3w" class="font-mono ml-2 p-1 bg-gray-900 rounded">///</span>
-                           </p>
-                           <p>
-                               <strong class="text-indigo-400">Coordinates:</strong>
-                               <span id="coords" class="font-mono ml-2 p-1 bg-gray-900 rounded">...</span>
-                           </p>
-                       </div>
-                       <div class="mt-4 text-xs text-gray-500">
-                            Note: Location data is not embedded in the image file.
-                       </div>
-                   </div>
-                   
-                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                       <a id="downloadButton" href="#" download="geotagged-photo.jpg" class="hidden w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg text-center transition focus:outline-none focus:ring-2 focus:ring-green-500/50">Download Photo</a>
-                       <button id="resetButton" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-gray-500/50">Take Another</button>
-                   </div>
-               </div>
+                    <div id="locationInfo" class="hidden bg-gray-700/50 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-white mb-2">Location Details</h3>
+                        <div class="space-y-2 text-sm">
+                            <p>
+                                <strong class="text-indigo-400">what3words:</strong>
+                                <span id="w3w" class="font-mono ml-2 p-1 bg-gray-900 rounded">///</span>
+                            </p>
+                            <p>
+                                <strong class="text-indigo-400">Coordinates:</strong>
+                                <span id="coords" class="font-mono ml-2 p-1 bg-gray-900 rounded">...</span>
+                            </p>
+                        </div>
+                        <div class="mt-4 text-xs text-gray-500">
+                             Note: Location data is not embedded in the image file.
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a id="downloadButton" href="#" download="geotagged-photo.jpg" class="hidden w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg text-center transition focus:outline-none focus:ring-2 focus:ring-green-500/50">Download Photo</a>
+                        <button id="resetButton" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-gray-500/50">Take Another</button>
+                    </div>
+                </div>
 
-           </main>
-       </div>
-   </div>
+            </main>
+        </div>
+    </div>
 
-   <script>
-       const W3W_API_KEY = 'AUXAQN08';
+    <script>
+        const W3W_API_KEY = 'ANKZH1RC';
 
-       const initialState = document.getElementById('initialState');
-       const cameraState = document.getElementById('cameraState');
-       const resultState = document.getElementById('resultState');
-       const takePhotoButton = document.getElementById('takePhotoButton');
-       const captureButton = document.getElementById('captureButton');
-       const resetButton = document.getElementById('resetButton');
-       const downloadButton = document.getElementById('downloadButton');
-       const video = document.getElementById('video');
-       const canvas = document.getElementById('canvas');
-       const photo = document.getElementById('photo');
-       const status = document.getElementById('status');
-       const statusText = document.getElementById('statusText');
-       const cameraSpinner = document.getElementById('cameraSpinner');
-       const locationInfo = document.getElementById('locationInfo');
-       const w3wElement = document.getElementById('w3w');
-       const coordsElement = document.getElementById('coords');
-       
-       let stream = null;
+        const initialState = document.getElementById('initialState');
+        const cameraState = document.getElementById('cameraState');
+        const resultState = document.getElementById('resultState');
+        const takePhotoButton = document.getElementById('takePhotoButton');
+        const captureButton = document.getElementById('captureButton');
+        const resetButton = document.getElementById('resetButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const photo = document.getElementById('photo');
+        const status = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+        const cameraSpinner = document.getElementById('cameraSpinner');
+        const locationInfo = document.getElementById('locationInfo');
+        const w3wElement = document.getElementById('w3w');
+        const coordsElement = document.getElementById('coords');
+        
+        let stream = null;
 
-       function initialize() {
-           takePhotoButton.addEventListener('click', startCamera);
-           captureButton.addEventListener('click', capturePhoto);
-           resetButton.addEventListener('click', resetApp);
-       }
+        function initialize() {
+            takePhotoButton.addEventListener('click', startCamera);
+            captureButton.addEventListener('click', capturePhoto);
+            resetButton.addEventListener('click', resetApp);
+        }
 
-       async function startCamera() {
-           initialState.classList.add('hidden');
-           resultState.classList.add('hidden');
-           cameraState.classList.remove('hidden');
-           cameraSpinner.style.display = 'flex';
+        async function startCamera() {
+            initialState.classList.add('hidden');
+            resultState.classList.add('hidden');
+            cameraState.classList.remove('hidden');
+            cameraSpinner.style.display = 'flex';
 
-           try {
-               stream = await navigator.mediaDevices.getUserMedia({
-                   video: { facingMode: 'environment' }
-               });
-               video.srcObject = stream;
-               video.onloadedmetadata = () => {
-                   cameraSpinner.style.display = 'none';
-               };
-               getLocationAndW3W();
-           } catch (err) {
-               console.error("Error accessing media devices.", err);
-               updateStatus('Camera or location access was denied.', 'error');
-               cameraState.classList.add('hidden');
-               initialState.classList.remove('hidden');
-           }
-       }
-       
-       function capturePhoto() {
-           canvas.width = video.videoWidth;
-           canvas.height = video.videoHeight;
-           const context = canvas.getContext('2d');
-           context.drawImage(video, 0, 0, canvas.width, canvas.height);
-           const dataUrl = canvas.toDataURL('image/jpeg');
-           photo.src = dataUrl;
-           downloadButton.href = dataUrl;
-           downloadButton.classList.remove('hidden');
-           cameraState.classList.add('hidden');
-           resultState.classList.remove('hidden');
-           stopCameraStream();
-       }
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' }
+                });
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    cameraSpinner.style.display = 'none';
+                };
+                getLocationAndW3W();
+            } catch (err) {
+                console.error("Error accessing media devices.", err);
+                updateStatus('Camera or location access was denied.', 'error');
+                cameraState.classList.add('hidden');
+                initialState.classList.remove('hidden');
+            }
+        }
+        
+        function capturePhoto() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            photo.src = dataUrl;
+            downloadButton.href = dataUrl;
+            downloadButton.classList.remove('hidden');
+            cameraState.classList.add('hidden');
+            resultState.classList.remove('hidden');
+            stopCameraStream();
+        }
 
-       function getLocationAndW3W() {
-           if (W3W_API_KEY === 'YOUR_WHAT3WORDS_API_KEY_HERE' || W3W_API_KEY === '') {
-               updateStatus('API Key is missing.', 'error');
-               return;
-           }
-           if (!navigator.geolocation) {
-               updateStatus('Geolocation is not supported by your browser.', 'error');
-               return;
-           }
-           updateStatus('Getting location...', 'loading');
+        function getLocationAndW3W() {
+            if (W3W_API_KEY === 'YOUR_WHAT3WORDS_API_KEY_HERE' || W3W_API_KEY === '') {
+                updateStatus('API Key is missing.', 'error');
+                return;
+            }
+            if (!navigator.geolocation) {
+                updateStatus('Geolocation is not supported by your browser.', 'error');
+                return;
+            }
+            updateStatus('Getting location...', 'loading');
 
-           navigator.geolocation.getCurrentPosition(
-               async (position) => {
-                   const { latitude, longitude } = position.coords;
-                   coordsElement.textContent = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-                   updateStatus('Fetching what3words address...', 'loading');
-                   try {
-                       const response = await fetch(`https://api.what3words.com/v3/convert-to-3wa?coordinates=${latitude},${longitude}&key=${W3W_API_KEY}`);
-                       if (!response.ok) {
-                          // Try to get a more specific error message from the API response
-                          const errorData = await response.json();
-                          const errorMessage = errorData?.error?.message || `API Error ${response.status}`;
-                          throw new Error(errorMessage);
-                       }
-                       const data = await response.json();
-                       w3wElement.textContent = data.words ? `///${data.words}` : 'Not found';
-                       updateStatus('Location found!', 'success');
-                   } catch (err) {
-                       console.error("Error fetching what3words.", err);
-                       w3wElement.textContent = 'API Error';
-                       // Display the more specific error message in the UI
-                       updateStatus(err.message, 'error');
-                   }
-               },
-               (error) => {
-                   console.error("Geolocation error.", error);
-                   let errorMessage = 'Unable to retrieve your location.';
-                   switch(error.code) {
-                       case error.PERMISSION_DENIED:
-                           errorMessage = "Location permission denied. Please check settings.";
-                           break;
-                       case error.POSITION_UNAVAILABLE:
-                           errorMessage = "Location information is unavailable.";
-                           break;
-                       case error.TIMEOUT:
-                           errorMessage = "Request for location timed out.";
-                           break;
-                   }
-                   updateStatus(errorMessage, 'error');
-               }
-           );
-       }
-       
-       function updateStatus(message, type) {
-           statusText.textContent = message;
-           const dot = status.querySelector('.pulse-dot');
-           dot.classList.remove('bg-yellow-400', 'bg-green-400', 'bg-red-400');
-           
-           if (type === 'loading') {
-               dot.classList.add('bg-yellow-400');
-               status.classList.remove('hidden');
-               locationInfo.classList.add('hidden');
-           } else if (type === 'success') {
-               dot.classList.add('bg-green-400');
-               status.classList.add('hidden');
-               locationInfo.classList.remove('hidden');
-           } else if (type === 'error') {
-               dot.classList.add('bg-red-400');
-               status.classList.remove('hidden');
-               locationInfo.classList.add('hidden');
-           }
-       }
-       
-       function stopCameraStream() {
-           if (stream) {
-               stream.getTracks().forEach(track => track.stop());
-               stream = null;
-           }
-       }
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    coordsElement.textContent = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+                    updateStatus('Fetching what3words address...', 'loading');
+                    try {
+                        const response = await fetch(`https://api.what3words.com/v3/convert-to-3wa?coordinates=${latitude},${longitude}&key=${W3W_API_KEY}`);
+                        if (!response.ok) {
+                           const errorData = await response.json();
+                           const errorMessage = errorData?.error?.message || `API Error ${response.status}`;
+                           throw new Error(errorMessage);
+                        }
+                        const data = await response.json();
+                        w3wElement.textContent = data.words ? `///${data.words}` : 'Not found';
+                        updateStatus('Location found!', 'success');
+                    } catch (err) {
+                        console.error("Error fetching what3words.", err);
+                        w3wElement.textContent = 'API Error';
+                        updateStatus(err.message, 'error');
+                    }
+                },
+                (error) => {
+                    console.error("Geolocation error.", error);
+                    let errorMessage = 'Unable to retrieve your location.';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = "Location permission denied. Please check settings.";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = "Location information is unavailable.";
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = "Request for location timed out.";
+                            break;
+                    }
+                    updateStatus(errorMessage, 'error');
+                }
+            );
+        }
+        
+        function updateStatus(message, type) {
+            statusText.textContent = message;
+            const dot = status.querySelector('.pulse-dot');
+            dot.classList.remove('bg-yellow-400', 'bg-green-400', 'bg-red-400', 'text-yellow-300', 'text-green-300', 'text-red-300');
+            
+            if (type === 'loading') {
+                dot.classList.add('bg-yellow-400');
+                statusText.classList.add('text-yellow-300');
+                status.classList.remove('hidden');
+                locationInfo.classList.add('hidden');
+            } else if (type === 'success') {
+                dot.classList.add('bg-green-400');
+                statusText.classList.add('text-green-300');
+                status.classList.add('hidden');
+                locationInfo.classList.remove('hidden');
+            } else if (type === 'error') {
+                dot.classList.add('bg-red-400');
+                statusText.classList.add('text-red-300');
+                status.classList.remove('hidden');
+                locationInfo.classList.add('hidden');
+            }
+        }
+        
+        function stopCameraStream() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        }
 
-       function resetApp() {
-           stopCameraStream();
-           resultState.classList.add('hidden');
-           cameraState.classList.add('hidden');
-           initialState.classList.remove('hidden');
-           photo.src = '';
-           downloadButton.href = '#';
-           w3wElement.textContent = '///';
-           coordsElement.textContent = '...';
-       }
+        function resetApp() {
+            stopCameraStream();
+            resultState.classList.add('hidden');
+            cameraState.classList.add('hidden');
+            initialState.classList.remove('hidden');
+            photo.src = '';
+            downloadButton.href = '#';
+            w3wElement.textContent = '///';
+            coordsElement.textContent = '...';
+        }
 
-       document.addEventListener('DOMContentLoaded', initialize);
-   </script>
+        document.addEventListener('DOMContentLoaded', initialize);
+    </script>
 </body>
 </html>
